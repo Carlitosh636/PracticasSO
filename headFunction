@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]){
+	int lineas;
+	char buf[1024];
+	int cuenta =0;
+	if(argc == 1){
+		lineas=10; //estandar si no se pasa el numero exacto
+	}
+	else if (argc == 2){
+		char *num = argv[1];		
+		lineas = atoi(num); //tomamos el numero de lineas a escribir
+
+	}
+	else{ //nos hemos pasado de argumentos
+		printf("Uso: \"½s -N\" para ver las N ultimas lineas, o \"%s\" para las 10 ultimas lineas\n", argv[0], argv[0]);
+		return 1;
+	}
+	
+	while((cuenta<lineas) && (fgets(buf, 1024, stdin) != NULL)){
+		printf("%s",buf);
+		cuenta++;
+	}
+	printf("%s",buf);
+	return 0;
+}
