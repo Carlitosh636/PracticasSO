@@ -1,0 +1,44 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]){
+	int lineas;
+	char buf[1024];
+	char dump[1024];
+	int cuenta =0;
+	int cuentaSecundaria=0;
+	int max=0; //el uso de cada parámetro se explicará en su uso.
+	if(argc == 1){
+		lineas=10; //estandar si no se pasa el numero exacto
+	}
+	else if (argc == 2){
+		char *num = argv[1];		
+		lineas = atoi(num); //tomamos el numero de lineas a escribir
+	}
+	else{ //nos hemos pasado de argumentos
+		printf("Uso: \"½s -N\" para ver las N ultimas lineas, o \"%s\" para las 10 ultimas lineas\n", argv[0], argv[0]);
+		return 1;
+	}
+	while(fgets(buf,1024,stdin)!=NULL){
+		if(cuenta==0){
+			strcpy(dump,buf);
+		}
+		else{
+			strcat(dump,buf);
+
+		} /*dump actúa como un "vertedero" de lo que lee buf. Es donde se vierte todas las lineas leídas.*/
+		cuenta++;
+	}
+	max=strlen(dump); //max determina el total de líneas LEIDAS
+	for(int i = 0; i < max; i++){
+		if(dump[i]=='\n'){ 
+			cuentaSecundaria++;
+		}
+		if(cuenta-cuentaSecundaria<=lineas){
+			printf("%c",dump[i]);
+		}
+	}
+	/*en éste bucle recorremos cada carácter y si llegamos al final de cada palabra, aumentamos un contador secundario que nos dice por qué línea vamos. Luego con una resta comprobamos si estamos en las N últimas líneas a imprimir, P ej, si tenemos 50 lineas y queremos imprimir 5, se empezzará a imprimir cuando la resta sea igual o menor a 5, eso es cuando cuentaSecundaria sea igual o mayor a 45. Si es así, se imprime el carácter por pantalla. No es lo más eficiente del mundo pero funciona prácticamente igual que el tail*/
+	return 0;
+}
