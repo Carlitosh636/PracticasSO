@@ -1,0 +1,48 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int compare(const void *a, const void *b){
+/*función de comparación para el qsort. Ésta debe retornar un valor menor que 0 si a es menor que b y debe colocarse, 0 si son iguales y mayor a 0 si a es mayor a b. Sin embargo, eso causa que a se coloque antes que B, ya que qsort por defecto ordena de menor a mayor. Como queremos lo contrario, se hace 1-valor que da el opuesto.*/
+	const char **v1=(const char **)a;
+	const char **v2=(const char **)b;
+	int valor=(strlen(*v1)-1)-(strlen(*v2)-1);
+	return (1-valor);
+}
+
+int main(int argc, char *argv[]){
+	char *listaLineas[1024];
+	char buf[1024];
+	int numLineas=0;
+	int i,j,k;
+	if(argc==2){
+		//leemos el numero de lineas
+		char *numString=argv[1];
+		numLineas=atoi(numString);
+		//colocamos cada linea leida en una pos del array
+		i=0;
+		while(fgets(buf,1024,stdin)!=NULL){
+			listaLineas[i]=malloc(1024*sizeof(char));
+			strcpy(listaLineas[i],buf);
+			i++;
+			/*damos memoria dinámica a cada pos del array y aumentamos el contador de lineas*/
+		}
+		qsort(listaLineas,i,sizeof(char *),compare);
+		//llamamos a la función de c qsort (seccion 3 del man) para ordenar la lista de mayor a menor con nuestra propia funcion compare
+		for(j=0;j<numLineas;j++){
+			printf("%s",listaLineas[j]);
+			//imprimimos las N mayores lineas
+		}
+		for(k=0;k<i;k++){
+			free(listaLineas[k]);
+			//liberamos memoria
+		}
+		//mostramos las N mayores lineas
+		return 0;
+	}
+	else{
+		printf("Mandato invocado incorrectamente.");
+		return -1;
+	}
+	return -1;
+}
