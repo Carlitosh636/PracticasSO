@@ -3,8 +3,10 @@
 
 int head(int num){
 	int lineas;
+	char **array;
 	char buf[1024];
 	int cuenta =0;
+	int i;
 	if(num <=0){
 		lineas=10; //estandar si no se pasa un numero indicado
 	}
@@ -12,11 +14,16 @@ int head(int num){
 		lineas = num //tomamos el numero de lineas a escribir
 
 	}
-	
+	array=malloc(lineas*sizeof(char *));
 	while((cuenta<lineas) && (fgets(buf, 1024, stdin) != NULL)){
-		printf("%s",buf);
+		array[cuenta]=malloc(1024);
+		strcpy(array[cuenta],buf);
 		cuenta++;
 	}
-	printf("%s",buf);
+	for(i=0;i<lineas;i++){
+		printf("%s",array[i]);
+		free(array[i]);
+	}
+	free(array);
 	return 0;
 }
