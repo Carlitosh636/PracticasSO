@@ -16,19 +16,19 @@ int main(int argc, char *argv[]){
 	int maxLineas;
 	int i,j;
 	if(argc==2){
-		//leemos el numero de lineas
+		//DEBE CAMBIARSE
 		char *numString=argv[1];
 		maxLineas=atoi(numString);
-		//colocamos cada linea leida en una pos del array
+		//FIN DEBE CAMBIARSE
 		i=0;
-		listaLineas=malloc(maxLineas*sizeof(char *));
+		listaLineas=malloc(maxLineas*sizeof(char *)); //se pone el tamaño del array
 		while(fgets(buf,1024,stdin)!=NULL){
 			if(i<maxLineas){
 				listaLineas[i]=malloc(1024);
 				strcpy(listaLineas[i],buf);	
 			}
 			i++;
-			/*damos memoria dinámica a cada pos del array y aumentamos el contador de lineas*/
+			//colocamos las N primeras líneas, que son las que nos interesan realmente.
 		}
 		qsort(listaLineas,maxLineas,sizeof(char *),compare);
 		//llamamos a la función de c qsort (seccion 3 del man) para ordenar la lista de mayor a menor con nuestra propia funcion compare
