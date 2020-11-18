@@ -7,7 +7,7 @@ int main(int argc, char *argv[]){
 	char buf[1024];
 	char **dump;
 	int cuenta =0;
-	int umbral;
+	//DEBE CAMBIARSE 
 	if(argc == 1){
 		lineas=10; //estandar si no se pasa el numero exacto
 	}
@@ -15,7 +15,8 @@ int main(int argc, char *argv[]){
 		char *num = argv[1];		
 		lineas = atoi(num); //tomamos el numero de lineas a escribir
 	}
-	dump=malloc(lineas*sizeof(char *));
+	//FIN DEBE CAMBIARSE
+	dump=malloc(lineas*sizeof(char *)); //se le da al array memoria dinámica igual a Lineas
 	while(fgets(buf,1024,stdin)!=NULL){
 		if(cuenta<=lineas){
 			if(dump[cuenta]==NULL){
@@ -27,13 +28,15 @@ int main(int argc, char *argv[]){
 			cuenta=0;
 			strcpy(dump[cuenta],buf);
 		}
-		 /*dump actúa como un "vertedero" de lo que lee buf. Es donde se vierte todas las lineas leídas.*/
+		 //En el array se almacenan sólo las últimas líneas leídas. Las más "antiguas" se descartan. Si se sobrepasa el tamaño del array, vuelve al inicio y sustituye la más antigua.
 		cuenta++;
 	}
 	for(int i = 0; i < lineas; i++){
 		printf("%s\n",dump[i]);
 		free(dump[i]);
+		//print de las líneas y liberación de memoria de cada elemento
 	}
 	free(dump);
+	//liberación de memoria del array principal
 	return 0;
 }
