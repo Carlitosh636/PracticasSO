@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int headFunction(int num){
+int head(int num){
 	int lineas;
 	char buf[1024];
 	int cuenta =0;
