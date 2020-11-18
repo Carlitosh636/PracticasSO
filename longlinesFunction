@@ -10,39 +10,35 @@ int compare(const void *a, const void *b){
 	return (1-valor);
 }
 
-int main(int argc, char *argv[]){
+int longlines(int num){
 	char **listaLineas;
 	char buf[1024];
 	int maxLineas;
 	int i,j;
-	if(argc==2){
-		//DEBE CAMBIARSE
-		char *numString=argv[1];
-		maxLineas=atoi(numString);
-		//FIN DEBE CAMBIARSE
-		i=0;
-		listaLineas=malloc(maxLineas*sizeof(char *)); //se pone el tamaño del array
-		while(fgets(buf,1024,stdin)!=NULL){
-			if(i<maxLineas){
-				listaLineas[i]=malloc(1024);
-				strcpy(listaLineas[i],buf);	
-			}
-			i++;
-			//colocamos las N primeras líneas, que son las que nos interesan realmente.
-		}
-		qsort(listaLineas,maxLineas,sizeof(char *),compare);
-		//llamamos a la función de c qsort (seccion 3 del man) para ordenar la lista de mayor a menor con nuestra propia funcion compare
-		for(j=0;j<maxLineas;j++){
-			printf("%s",listaLineas[j]);
-			free(listaLineas[j]);
-			//imprimimos las N mayores lineas y liberamos memoria
-		}
-		free(listaLineas);
-		return 0;
+	if(num <=0){
+		lineas=10; //estandar si no se pasa un numero indicado
 	}
-	else{
-		printf("Mandato invocado incorrectamente.");
-		return -1;
+	else if (num > 0){	
+		lineas = num //tomamos el numero de lineas a escribir
+
 	}
-	return -1;
+	i=0;
+	listaLineas=malloc(maxLineas*sizeof(char *)); //se pone el tamaño del array
+	while(fgets(buf,1024,stdin)!=NULL){
+		if(i<maxLineas){
+			listaLineas[i]=malloc(1024);
+			strcpy(listaLineas[i],buf);	
+		}
+		i++;
+		//colocamos las N primeras líneas, que son las que nos interesan realmente.
+	}
+	qsort(listaLineas,maxLineas,sizeof(char *),compare);
+	//llamamos a la función de c qsort (seccion 3 del man) para ordenar la lista de mayor a menor con nuestra propia funcion compare
+	for(j=0;j<maxLineas;j++){
+		printf("%s",listaLineas[j]);
+		free(listaLineas[j]);
+		//imprimimos las N mayores lineas y liberamos memoria
+	}
+	free(listaLineas);
+	return 0;
 }
