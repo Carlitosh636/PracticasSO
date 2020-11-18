@@ -2,38 +2,47 @@
 #include <stdlib.h>
 #include <string.h>
 
+int compare(const void *a, const void *b){
+/*función de comparación para el qsort. Ésta debe retornar un valor menor que 0 si a es menor que b y debe colocarse, 0 si son iguales y mayor a 0 si a es mayor a b. Sin embargo, eso causa que a se coloque antes que B, ya que qsort por defecto ordena de menor a mayor. Como queremos lo contrario, se hace 1-valor que da el opuesto.*/
+	const char **v1=(const char **)a;
+	const char **v2=(const char **)b;
+	int valor=(strlen(*v1)-1)-(strlen(*v2)-1);
+	return (1-valor);
+}
+
 int main(int argc, char *argv[]){
-	int lineas;
+	char **listaLineas;
 	char buf[1024];
-	char **dump;
-	int cuenta =0;
-	int umbral;
-	if(argc == 1){
-		lineas=10; //estandar si no se pasa el numero exacto
-	}
-	else if (argc == 2){
-		char *num = argv[1];		
-		lineas = atoi(num); //tomamos el numero de lineas a escribir
-	}
-	dump=malloc(lineas*sizeof(char *));
-	while(fgets(buf,1024,stdin)!=NULL){
-		if(cuenta<=lineas){
-			if(dump[cuenta]==NULL){
-				dump[cuenta]=malloc(1024);
+	int maxLineas;
+	int i,j;
+	if(argc==2){
+		//leemos el numero de lineas
+		char *numString=argv[1];
+		maxLineas=atoi(numString);
+		//colocamos cada linea leida en una pos del array
+		i=0;
+		listaLineas=malloc(maxLineas*sizeof(char *));
+		while(fgets(buf,1024,stdin)!=NULL){
+			if(i<maxLineas){
+				listaLineas[i]=malloc(1024);
+				strcpy(listaLineas[i],buf);	
 			}
-			strcpy(dump[cuenta],buf);
+			i++;
+			/*damos memoria dinámica a cada pos del array y aumentamos el contador de lineas*/
 		}
-		else{
-			cuenta=0;
-			strcpy(dump[cuenta],buf);
+		qsort(listaLineas,maxLineas,sizeof(char *),compare);
+		//llamamos a la función de c qsort (seccion 3 del man) para ordenar la lista de mayor a menor con nuestra propia funcion compare
+		for(j=0;j<maxLineas;j++){
+			printf("%s",listaLineas[j]);
+			free(listaLineas[j]);
+			//imprimimos las N mayores lineas y liberamos memoria
 		}
-		 /*dump actúa como un "vertedero" de lo que lee buf. Es donde se vierte todas las lineas leídas.*/
-		cuenta++;
+		free(listaLineas);
+		return 0;
 	}
-	for(int i = 0; i < lineas; i++){
-		printf("%s\n",dump[i]);
-		free(dump[i]);
+	else{
+		printf("Mandato invocado incorrectamente.");
+		return -1;
 	}
-	free(dump);
-	return 0;
+	return -1;
 }
