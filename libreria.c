@@ -68,7 +68,9 @@ int tail(int N){
 }
 
 int compare(const void *a, const void *b){
-/*función de comparación para el qsort. Ésta debe retornar un valor menor que 0 si a es menor que b y debe colocarse, 0 si son iguales y mayor a 0 si a es mayor a b. Sin embargo, eso causa que a se coloque antes que B, ya que qsort por defecto ordena de menor a mayor. Como queremos lo contrario, se hace 1-valor que da el opuesto.*/
+/*función de comparación para el qsort. Ésta debe retornar un valor menor que 0 si a es menor que b y debe colocarse, 0 si son iguales y mayor a 0 si a es mayor a b. 
+Sin embargo, eso causa que a se coloque antes que B, ya que qsort por defecto ordena de menor a mayor. 
+Como queremos lo contrario, se hace 1-valor que da el opuesto.*/
 	const char **v1=(const char **)a;
 	const char **v2=(const char **)b;
 	int valor=(strlen(*v1)-1)-(strlen(*v2)-1);
