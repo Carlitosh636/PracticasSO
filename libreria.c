@@ -20,10 +20,11 @@ int head(int N){
 	while((cuenta<lineas) && (fgets(buf, 1024, stdin) != NULL)){
 		array[cuenta]=malloc(1024);
 		strcpy(array[cuenta],buf);
+		printf("%s",array[i]);
 		cuenta++;
 	}
 	for(i=0;i<lineas;i++){
-		printf("%s",array[i]);
+		//printf("%s",array[i]);
 		free(array[i]);
 	}
 	free(array);
