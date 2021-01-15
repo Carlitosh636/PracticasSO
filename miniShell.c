@@ -71,8 +71,8 @@ void InsertarPID(pid_t p,char *name){
 	}
 	
 }
-int ReturnLastPID(){
-	return (pid_t)current->pid;	
+pid_t ReturnLastPID(){
+	return current->pid;	
 
 }
 int main(void) {
