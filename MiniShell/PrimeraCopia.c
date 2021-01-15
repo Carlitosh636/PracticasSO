@@ -7,23 +7,28 @@
 #include <sys/wait.h>
 #include "parser.h"
 
+//Función auxiliar para 2 o más procesos. toma valores para las redirecciones de entrada/salida de los procesos y los mandatos con argumentos que ejecutar
 int nuevo_proc(int in,int out,char *mand,char **args){
 	pid_t pid;
 	pid=fork();
 	if(pid==0){
 		if(in!=0){
+			//si es el primer mandato, no necesitamos lectura
 			dup2(in,0);
 			close(in);
 		}
+		//el resto es para comandos intermedios
 		if(out!=1){
 			dup2(out,1);
 			close(out);
 		}
+		//ejecuta el mandato
 		execvp(mand,args);
 	}
 	return pid;
 }
-
+/*Para saber que procesos están en BG necesitamos una lista, ya que no sabemos cuántos procesos se pondrán en BG. Con un nodo que contenga PID y nombre, y una función para insertar
+y otra para mostrar todo, es suficiente.*/
 struct nodo{
 	int pid;
 	char *mandName;
@@ -44,7 +49,6 @@ void InsertarPID(int p,char *name){
 	if(head==NULL){
 		head=(struct nodo*)malloc(sizeof(struct nodo));
 		head->pid=p;
-		//head->mandName=malloc(1024);
 		head->mandName=name;
 		head->sig=NULL;
 		printf("%d",head->pid);
@@ -57,7 +61,6 @@ void InsertarPID(int p,char *name){
 		}
 		nuevo->sig=(struct nodo*)malloc(sizeof(struct nodo));
 		nuevo->sig->pid=p;
-		//nuevo->sig->mandName=malloc(1024);
 		nuevo->sig->mandName=name;
 		nuevo->sig->sig=NULL;
 		printf("%d",nuevo->pid);
@@ -67,38 +70,38 @@ void InsertarPID(int p,char *name){
 }
 int main(void) {
 
-	char buf[1024];
-	tline * line;
-	pid_t pid,pid2;
+	char buf[1024];//buffer entrada
+	tline * line; //linea a parsear
+	pid_t pid; //pid del fork
 	
 	int status;
-	int fichero,fichaux,ficherr;
-	int i,contProc;
-	int in,ult, pipa[2];
+	int fichero,fichaux,ficherr;//descr de ficheros
+	int i,contProc;//contadores
+	int in,ult, pipa[2];//pipe y variables para 2+ mandatos
 	i=0;
 	printf("$: ");
 	
-	while (fgets(buf, 1024, stdin)!=NULL){
+	while (fgets(buf, 1024, stdin)!=NULL){ //mientras se introduzcan cosas y no se detenga con CTRL+D
 
 		line = tokenize(buf);
-		if(line == NULL){
+		if(line == NULL){ //si no se ha introducido
 			continue;
 		}
 
-		if(strcmp(line-> commands[0].argv[0], "cd")==0){
+		if(strcmp(line-> commands[0].argv[0], "cd")==0){ //si el mandato es cd
 			
 			if(line->commands[0].argv[1]==NULL){
-				chdir(getenv("HOME"));
+				chdir(getenv("HOME")); // si no tiene argumentos, se pasa al dir estandar $HOME
 			}
 			else{
-				int dir=chdir(line->commands[0].argv[1]);
+				int dir=chdir(line->commands[0].argv[1]); //se lleva al dir indicado y si no existe, se avisa.
 				if(dir==-1){
 					printf("El directorio actual no existe: %s \n",line->commands[0].argv[1]);
 				}
 			}
 		}
-		else if(strcmp(line-> commands[0].argv[0], "jobs")==0){
-			MostrarLista();
+		else if(strcmp(line-> commands[0].argv[0], "jobs")==0){ //si es mandato jobs
+			MostrarLista(); //función aux mostrar lista
 		}
 	
 		else if(line->ncommands == 1){ //Si hay un solo comando
@@ -199,7 +202,7 @@ int main(void) {
 
 			}else{ //el padre
 				
-				//espera al hijo
+				//espera al hijo si es un proceso para FG. Si no, continúa ejecutando el código e introduce el PID en la lista
 				
 				if(line ->background==0){
 					waitpid(pid,&status,0);
@@ -209,27 +212,44 @@ int main(void) {
 				
 			}
 		}
-		else if(line -> ncommands >= 2){
+		else if(line -> ncommands >= 2){//si son 2+ mandatos
 				
 				
 				in=0;
-				for(contProc=0; contProc<line->ncommands-1;contProc++){
+				int pidAux=0;//variable auxiliar
+				for(contProc=0; contProc<line->ncommands-1;contProc++){ //por cada mandato que hay menos el último
 					pipe(pipa);
-					nuevo_proc(in,pipa[1],line->commands[contProc].filename,line->commands[contProc].argv);
+					pidAux=(int)nuevo_proc(in,pipa[1],line->commands[contProc].filename,line->commands[contProc].argv); //usamos la funcion auxiliar para hacer el fork
 					close(pipa[1]);
-					in=pipa[0];
+					in=pipa[0]; //para la siguiente iteración, entra como parametro en la funcion la parte de lectura de pipa.
 				}
-				ult=fork();
+				ult=fork(); //para el último mandato, el hijo redirige a salida estándar o especificada y ejecuta el ultimo mandato
 				if(ult==0){
-					dup2(in,0);
+					if (line->redirect_output != NULL) { //si hay redirección de salida
+						
+						fichaux = open(line->redirect_output, O_WRONLY | O_CREAT | O_TRUNC , 0600);
+
+						if (fichaux == -1) {
+							fprintf(stderr,"%i: Error. Fallo al abrir el fichero de redirección de salida\n", fichaux);
+							exit(1);
+						} else {
+							dup2(fichaux,1); //redirigimos la salida
+						}
+
+						execv(line->commands[0].filename, line->commands[0].argv); //ejecutamos el comando
+						fprintf(stderr,"%s: No se encuentra el mandato\n",line->commands[i].filename);
+
+					}
+					else dup2(in,0);					
 					execvp(line->commands[contProc].filename,line->commands[contProc].argv);
 				}
 				else{
+					//el padre actua igual que 1comando
 					if(line->background==0){
 						waitpid(ult,&status,0);
 					}
 					else{
-						InsertarPID(nuevo_proc(in,pipa[1],line->commands[contProc].filename,line->commands[contProc].argv),line->commands[contProc].filename);
+						InsertarPID(pidAux,line->commands[contProc].filename);
 					}
 				}
 				
