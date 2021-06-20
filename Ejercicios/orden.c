@@ -33,7 +33,7 @@ int main(int argc, char **argv){
 	pthread_create(&tid1,NULL,escribir1,&n1);
 	pthread_create(&tid2,NULL,escribir2,&n2);
 	
-	sem_init(&sem,0,1);
+	sem_init(&sem,0,0);
 	
 	pthread_join(tid1,NULL);
 	pthread_join(tid2,NULL);
